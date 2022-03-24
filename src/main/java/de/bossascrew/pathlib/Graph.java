@@ -2,10 +2,13 @@ package de.bossascrew.pathlib;
 
 import de.bossascrew.pathlib.pathfinder.Dijkstra;
 import de.bossascrew.pathlib.pathfinder.PathFinder;
+import jdk.internal.joptsimple.util.KeyValuePair;
+import jdk.internal.vm.compiler.collections.Pair;
 
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class Graph<V> {
 
@@ -28,7 +31,7 @@ public class Graph<V> {
      * @param keyFunction   a function that retreives an individual key for each node that is used for comparison
      * @param costsFunction a function that provides a distance value for two nodes.
      */
-    public Graph(List<V> nodes, Map<V, V> edges, Function<V, Node> nodeFunction, Function<V, String> keyFunction, BiFunction<V, V, Float> costsFunction) {
+    public Graph(Set<V> nodes, Set<Pair<V, V>> edges, Function<V, Node> nodeFunction, Function<V, String> keyFunction, BiFunction<V, V, Float> costsFunction) {
         this.nodes = new HashMap<>();
         this.nodeFunction = v -> {
             String key = keyFunction.apply(v);
@@ -48,10 +51,12 @@ public class Graph<V> {
             nodeList.put(pos, node);
         }
         for (Map.Entry<V, Node> start : nodeList.entrySet()) {
-            V end = edges.get(start);
-            if (end != null) {
-                Node endNode = nodeList.get(end);
-                edgeList.add(new Edge(start.getValue(), endNode, costsFunction.apply(start.getKey(), end)));
+            List<V> ends = edges.stream().filter(vvPair -> vvPair.getLeft().equals(start)).map(Pair::getRight).collect(Collectors.toList());
+            for (V end : ends) {
+                if (end != null) {
+                    Node endNode = nodeList.get(end);
+                    edgeList.add(new Edge(start.getValue(), endNode, costsFunction.apply(start.getKey(), end)));
+                }
             }
         }
         nodeList.forEach((v, node) -> this.nodes.put(keyFunction.apply(v), node));
