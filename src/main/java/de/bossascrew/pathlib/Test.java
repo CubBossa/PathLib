@@ -14,6 +14,7 @@ public class Test {
         nodes.add("Point B");
         nodes.add("Point C");
         nodes.add("Point D");
+
         Set<Pair<String, String>> edges = new HashSet<>();
         edges.add(Pair.of("Point A", "Point B"));
         edges.add(Pair.of("Point B", "Point C"));
@@ -28,6 +29,5 @@ public class Test {
         for (Node node : graph.getShortestPath(start, target)) {
             System.out.print(node.getKey() + " -> ");
         }
-        System.out.print(target);
     }
 }

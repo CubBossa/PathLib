@@ -72,6 +72,10 @@ public class Graph<V> {
         return edges;
     }
 
+    public void addNode(V node) {
+        addNode(nodeFunction.apply(node), null);
+    }
+
     public void addNode(V node, Map<V, Float> edges) {
         Map<Node, Float> edgeMap = new HashMap<>();
         edges.forEach((v, aFloat) -> edgeMap.put(nodeFunction.apply(v), aFloat));
@@ -86,6 +90,9 @@ public class Graph<V> {
      */
     public void addNode(Node node, Map<Node, Float> edges) {
         nodes.put(node.getKey(), node);
+        if(edges == null) {
+            return;
+        }
         for (Map.Entry<Node, Float> entry : edges.entrySet()) {
             Edge edge = new Edge(node, entry.getKey(), entry.getValue());
             node.getEdges().add(edge);

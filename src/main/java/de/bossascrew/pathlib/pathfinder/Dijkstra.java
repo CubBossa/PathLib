@@ -9,8 +9,6 @@ import java.util.*;
 
 public class Dijkstra implements PathFinder {
 
-    //TODO only copy paste for now
-
     @Override
     public <V> Path getShortestPath(Graph<V> graph, Node startNode, Node endNode) {
 
@@ -42,10 +40,12 @@ public class Dijkstra implements PathFinder {
             }
             settledNodes.add(currentNode);
         }
-        System.out.println("Calculations finished, nodes " + graph.getNodes().size() + ", edges " + graph.getEdges().size());
         Path shortest = new Path();
         for (DNode dNode : dnodes.get(endNode.getKey()).getShortestPath()) {
             shortest.add(dNode.getNode());
+        }
+        if(shortest.size() != 0) {
+            shortest.add(endNode);
         }
         return shortest;
     }
