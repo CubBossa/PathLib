@@ -2,19 +2,39 @@
 
 ## What is it used for?
 
-This path library helps to calculate the shortest path on a graph.
-It is designed to convert another data container into a graph easily, like
-Vectors or serializable Nodes.
+This path library helps to calculate the shortest path on a graph. It is designed to convert another data container into
+a graph easily, like Vectors or serializable Nodes.
 
 ## How to use?
 
+To sort nodes, unique keys are used. In this simple example, Nodes are strings and
+the string also represents the key. Every Edge has a length of one.
 
+Instead of Strings, every possible object can be converted and used for path calculation.
 
 ```Java
-    
+public class Example {
+    public static void main(String[] args) {
+        Set<String> nodes = new HashSet<>();
+        nodes.add("Point A");
+        nodes.add("Point B");
+        nodes.add("Point C");
+        nodes.add("Point D");
+        Set<Pair<String, String>> edges = new HashSet<>();
+        edges.add(Pair.of("Point A", "Point B"));
+        edges.add(Pair.of("Point B", "Point C"));
+        edges.add(Pair.of("Point B", "Point D"));
+        edges.add(Pair.of("Point C", "Point D"));
 
+        Graph<String> graph = new Graph<>(nodes, edges, Node::new, s -> s, (s, s2) -> 1f);
 
-
-
-
+        String start = "Point A";
+        String target = "Point D";
+        System.out.println("\n\nSimple Example");
+        for (Node node : graph.getShortestPath(start, target)) {
+            System.out.print(node.getKey() + " -> ");
+        }
+        System.out.print(target);
+    }
+}
 ```

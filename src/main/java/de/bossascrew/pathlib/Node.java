@@ -1,22 +1,24 @@
 package de.bossascrew.pathlib;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 public class Node {
 
     private final String key;
-    private List<Edge> edges;
+    private Set<Edge> edges;
 
     public Node(String key) {
         this.key = key;
+        edges = new HashSet<>();
     }
 
     public String getKey() {
         return key;
     }
 
-    public List<Edge> getEdges() {
+    public Set<Edge> getEdges() {
         return edges;
     }
 

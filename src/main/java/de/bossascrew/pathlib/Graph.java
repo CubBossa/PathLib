@@ -2,8 +2,7 @@ package de.bossascrew.pathlib;
 
 import de.bossascrew.pathlib.pathfinder.Dijkstra;
 import de.bossascrew.pathlib.pathfinder.PathFinder;
-import jdk.internal.joptsimple.util.KeyValuePair;
-import jdk.internal.vm.compiler.collections.Pair;
+import de.bossascrew.pathlib.util.Pair;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -51,16 +50,26 @@ public class Graph<V> {
             nodeList.put(pos, node);
         }
         for (Map.Entry<V, Node> start : nodeList.entrySet()) {
-            List<V> ends = edges.stream().filter(vvPair -> vvPair.getLeft().equals(start)).map(Pair::getRight).collect(Collectors.toList());
+            List<V> ends = edges.stream().filter(vvPair -> vvPair.getLeft().equals(start.getKey())).map(Pair::getRight).collect(Collectors.toList());
             for (V end : ends) {
                 if (end != null) {
                     Node endNode = nodeList.get(end);
-                    edgeList.add(new Edge(start.getValue(), endNode, costsFunction.apply(start.getKey(), end)));
+                    Edge edge = new Edge(start.getValue(), endNode, costsFunction.apply(start.getKey(), end));
+                    start.getValue().getEdges().add(edge);
+                    edgeList.add(edge);
                 }
             }
         }
         nodeList.forEach((v, node) -> this.nodes.put(keyFunction.apply(v), node));
         this.edges = edgeList;
+    }
+
+    public Collection<Node> getNodes() {
+        return nodes.values();
+    }
+
+    public Collection<Edge> getEdges() {
+        return edges;
     }
 
     public void addNode(V node, Map<V, Float> edges) {
@@ -111,6 +120,24 @@ public class Graph<V> {
     }
 
     /**
+     * Removes the connection from the provided start node to end node
+     */
+    public void disconnectNodes(V start, V end) {
+        disconnectNodes(nodeFunction.apply(start), nodeFunction.apply(end));
+    }
+
+    /**
+     * Removes the connection from the provided start node to end node
+     */
+    public void disconnectNodes(Node start, Node end) {
+        Edge edge = edges.stream().filter(e -> e.getStart().equals(start) && e.getEnd().equals(end)).findFirst().orElse(null);
+        if (edge != null) {
+            start.getEdges().remove(edge);
+            edges.remove(edge);
+        }
+    }
+
+    /**
      * The shortest path from start to end, based on the Dijkstra Algorithm.
      *
      * @param start the start node
@@ -130,5 +157,27 @@ public class Graph<V> {
      */
     public Path getShortestPath(PathFinder pathFinder, Node start, Node end) {
         return pathFinder.getShortestPath(this, start, end);
+    }
+
+    /**
+     * The shortest path from start to end, based on the Dijkstra Algorithm.
+     *
+     * @param start the start node
+     * @param end   the end node
+     * @return the shortest path object with no entries if no shortest path was found
+     */
+    public Path getShortestPath(V start, V end) {
+        return getShortestPath(new Dijkstra(), start, end);
+    }
+
+    /**
+     * The shortest path from start to end, based on the provided algorithm.
+     *
+     * @param start the start node
+     * @param end   the end node
+     * @return the shortest path object with no entries if no shortest path was found
+     */
+    public Path getShortestPath(PathFinder pathFinder, V start, V end) {
+        return getShortestPath(pathFinder, nodeFunction.apply(start), nodeFunction.apply(end));
     }
 }

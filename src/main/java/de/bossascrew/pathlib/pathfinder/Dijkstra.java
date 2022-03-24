@@ -1,5 +1,6 @@
 package de.bossascrew.pathlib.pathfinder;
 
+import de.bossascrew.pathlib.Edge;
 import de.bossascrew.pathlib.Graph;
 import de.bossascrew.pathlib.Node;
 import de.bossascrew.pathlib.Path;
@@ -11,10 +12,16 @@ public class Dijkstra implements PathFinder {
     //TODO only copy paste for now
 
     @Override
-    public Path getShortestPath(Graph graph, Node start, Node end) {
+    public <V> Path getShortestPath(Graph<V> graph, Node startNode, Node endNode) {
 
-        DNode source = null;
-
+        Map<String, DNode> dnodes = new HashMap<>();
+        for (Node node : graph.getNodes()) {
+            dnodes.put(node.getKey(), new DNode(node));
+        }
+        for (Edge edge : graph.getEdges()) {
+            dnodes.get(edge.getStart().getKey()).addDestination(dnodes.get(edge.getEnd().getKey()), edge.getCosts());
+        }
+        DNode source = dnodes.get(startNode.getKey());
         source.setDistance(0);
 
         Set<DNode> settledNodes = new HashSet<>();
@@ -25,9 +32,9 @@ public class Dijkstra implements PathFinder {
         while (unsettledNodes.size() != 0) {
             DNode currentNode = getLowestDistanceNode(unsettledNodes);
             unsettledNodes.remove(currentNode);
-            for (Map.Entry< DNode, Integer> adjacencyPair : currentNode.getAdjacentNodes().entrySet()) {
+            for (Map.Entry<DNode, Float> adjacencyPair : currentNode.getAdjacentNodes().entrySet()) {
                 DNode adjacentNode = adjacencyPair.getKey();
-                Integer edgeWeight = adjacencyPair.getValue();
+                float edgeWeight = adjacencyPair.getValue();
                 if (!settledNodes.contains(adjacentNode)) {
                     calculateMinimumDistance(adjacentNode, edgeWeight, currentNode);
                     unsettledNodes.add(adjacentNode);
@@ -35,13 +42,18 @@ public class Dijkstra implements PathFinder {
             }
             settledNodes.add(currentNode);
         }
-        return null;
+        System.out.println("Calculations finished, nodes " + graph.getNodes().size() + ", edges " + graph.getEdges().size());
+        Path shortest = new Path();
+        for (DNode dNode : dnodes.get(endNode.getKey()).getShortestPath()) {
+            shortest.add(dNode.getNode());
+        }
+        return shortest;
     }
 
-    private DNode getLowestDistanceNode(Set < DNode > unsettledNodes) {
+    private DNode getLowestDistanceNode(Set<DNode> unsettledNodes) {
         DNode lowestDistanceNode = null;
         float lowestDistance = Integer.MAX_VALUE;
-        for (DNode node: unsettledNodes) {
+        for (DNode node : unsettledNodes) {
             float nodeDistance = node.getDistance();
             if (nodeDistance < lowestDistance) {
                 lowestDistance = nodeDistance;
@@ -51,7 +63,7 @@ public class Dijkstra implements PathFinder {
         return lowestDistanceNode;
     }
 
-    private void calculateMinimumDistance(DNode evaluationNode, Integer edgeWeigh, DNode sourceNode) {
+    private void calculateMinimumDistance(DNode evaluationNode, float edgeWeigh, DNode sourceNode) {
         float sourceDistance = sourceNode.getDistance();
         if (sourceDistance + edgeWeigh < evaluationNode.getDistance()) {
             evaluationNode.setDistance(sourceDistance + edgeWeigh);
@@ -68,9 +80,9 @@ public class Dijkstra implements PathFinder {
 
         private float distance = Integer.MAX_VALUE;
 
-        Map<DNode, Integer> adjacentNodes = new HashMap<>();
+        Map<DNode, Float> adjacentNodes = new HashMap<>();
 
-        public void addDestination(DNode destination, int distance) {
+        public void addDestination(DNode destination, float distance) {
             adjacentNodes.put(destination, distance);
         }
 
@@ -78,7 +90,11 @@ public class Dijkstra implements PathFinder {
             this.node = node;
         }
 
-        public Map<DNode, Integer> getAdjacentNodes() {
+        public Node getNode() {
+            return node;
+        }
+
+        public Map<DNode, Float> getAdjacentNodes() {
             return adjacentNodes;
         }
 

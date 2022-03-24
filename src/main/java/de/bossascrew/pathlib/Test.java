@@ -1,8 +1,9 @@
 package de.bossascrew.pathlib;
 
-import jdk.internal.vm.compiler.collections.Pair;
+import de.bossascrew.pathlib.util.Pair;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Test {
 
@@ -14,13 +15,19 @@ public class Test {
         nodes.add("Point C");
         nodes.add("Point D");
         Set<Pair<String, String>> edges = new HashSet<>();
-        edges.add(Pair.create("Point A", "Point B"));
-        edges.add(Pair.create("Point B", "Point C"));
-        edges.add(Pair.create("Point B", "Point D"));
+        edges.add(Pair.of("Point A", "Point B"));
+        edges.add(Pair.of("Point B", "Point C"));
+        edges.add(Pair.of("Point B", "Point D"));
+        edges.add(Pair.of("Point C", "Point D"));
 
         Graph<String> graph = new Graph<>(nodes, edges, Node::new, s -> s, (s, s2) -> 1f);
 
-        //graph.getShortestPath("Point A", "Point B");
+        String start = "Point A";
+        String target = "Point D";
+        System.out.println("\n\nSimple Example");
+        for (Node node : graph.getShortestPath(start, target)) {
+            System.out.print(node.getKey() + " -> ");
+        }
+        System.out.print(target);
     }
-
 }

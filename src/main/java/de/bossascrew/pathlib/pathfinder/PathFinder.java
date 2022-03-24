@@ -16,5 +16,5 @@ public interface PathFinder {
      * @param end   the end node
      * @return the shortest path from start node to end node or an empty map if no path was found
      */
-    public Path getShortestPath(Graph graph, Node start, Node end);
+    public <V> Path getShortestPath(Graph<V> graph, Node start, Node end);
 }
