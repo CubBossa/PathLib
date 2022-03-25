@@ -66,12 +66,24 @@ public class Graph<V> {
         this.edges = edgeList;
     }
 
+    public int size() {
+        return nodes.size();
+    }
+
     public Collection<Node> getNodes() {
         return nodes.values();
     }
 
     public Collection<Edge> getEdges() {
         return edges;
+    }
+
+    public double distance(V a, V b) {
+        return distanceFunction.apply(a, b);
+    }
+
+    public double distance(Node a, Node b) {
+        return distance(returnFunction.apply(a.getKey()), returnFunction.apply(b.getKey()));
     }
 
     public void addNode(V node) {
