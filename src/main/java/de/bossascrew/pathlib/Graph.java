@@ -15,6 +15,7 @@ public class Graph<V> {
     private final Set<Edge> edges;
 
     private final Function<V, Node> nodeFunction;
+    private final Function<String, V> returnFunction;
     private final BiFunction<V, V, Float> distanceFunction;
 
     /**
@@ -24,13 +25,13 @@ public class Graph<V> {
      * Edges represent directed connections between two nodes. Use the costs function to provide distance information.
      * Use `(a, b) -> 1` to make them equidistant.
      *
-     * @param nodes         a list of objects that will be converted into nodes
-     * @param edges         a map of edges that will be converted into internal edges
-     * @param nodeFunction  a function to convert an object into a node. E.g. `(v) -> new Node(v.toString())`
-     * @param keyFunction   a function that retreives an individual key for each node that is used for comparison
-     * @param costsFunction a function that provides a distance value for two nodes.
+     * @param nodes          a list of objects that will be converted into nodes
+     * @param edges          a map of edges that will be converted into internal edges
+     * @param keyFunction    a function that retrieves an individual key for each node that is used for comparison
+     * @param returnFunction a function that retrieves the input object from an individual key
+     * @param costsFunction  a function that provides a distance value for two nodes.
      */
-    public Graph(Set<V> nodes, Set<Pair<V, V>> edges, Function<V, Node> nodeFunction, Function<V, String> keyFunction, BiFunction<V, V, Float> costsFunction) {
+    public Graph(Set<V> nodes, Set<Pair<V, V>> edges, Function<V, String> keyFunction, Function<String, V> returnFunction, BiFunction<V, V, Float> costsFunction) {
         this.nodes = new HashMap<>();
         this.nodeFunction = v -> {
             String key = keyFunction.apply(v);
@@ -38,8 +39,9 @@ public class Graph<V> {
             if (contained != null) {
                 return contained;
             }
-            return nodeFunction.apply(v);
+            return new Node(keyFunction.apply(v));
         };
+        this.returnFunction = returnFunction;
         this.distanceFunction = costsFunction;
 
         Map<V, Node> nodeList = new HashMap<>();
@@ -173,7 +175,7 @@ public class Graph<V> {
      * @param end   the end node
      * @return the shortest path object with no entries if no shortest path was found
      */
-    public Path getShortestPath(V start, V end) {
+    public LinkedList<V> getShortestPath(V start, V end) {
         return getShortestPath(new Dijkstra(), start, end);
     }
 
@@ -184,7 +186,7 @@ public class Graph<V> {
      * @param end   the end node
      * @return the shortest path object with no entries if no shortest path was found
      */
-    public Path getShortestPath(PathFinder pathFinder, V start, V end) {
-        return getShortestPath(pathFinder, nodeFunction.apply(start), nodeFunction.apply(end));
+    public LinkedList<V> getShortestPath(PathFinder pathFinder, V start, V end) {
+        return new LinkedList<>(getShortestPath(pathFinder, nodeFunction.apply(start), nodeFunction.apply(end)).stream().map(node -> returnFunction.apply(node.getKey())).collect(Collectors.toList()));
     }
 }
