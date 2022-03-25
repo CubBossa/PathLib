@@ -39,3 +39,37 @@ public class Example {
     }
 }
 ```
+
+In the following example, named 3-dimensional Vectors are used instead of strings. In this case, an individual distance function can be used.
+
+```Java
+public class Example {
+    public static void main(String[] args) {
+
+        Vector a = new Vector("a", 1, 1, 1);
+        Vector b = new Vector("b", 1, 2.5f, -1);
+        Vector c = new Vector("c", 3, 0, 1);
+        Vector d = new Vector("d", -1, 0, -1);
+
+        Set<Vector> nodes = new HashSet<>();
+        nodes.add(a);
+        nodes.add(b);
+        nodes.add(c);
+        nodes.add(d);
+
+        Set<Pair<Vector, Vector>> edges = new HashSet<>();
+        edges.add(Pair.of(a, b));
+        edges.add(Pair.of(b, a));
+        edges.add(Pair.of(b, c));
+        edges.add(Pair.of(b, d));
+        edges.add(Pair.of(c, d));
+
+        // The name of the vector class serves as key, to get the vector object from the key, a java stream is used in this example.
+        Graph<Vector> graph = new Graph<>(nodes, edges, Vector::getName,
+                string -> nodes.stream().filter(vector -> vector.getName().equals(string)).findFirst().orElse(null), Vector::distance);
+
+        System.out.println("\n\nVector Example");
+        graph.getShortestPath(a, d).forEach(s -> System.out.print(s.getName() + " -> "));
+    }
+}
+```
